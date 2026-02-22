@@ -1,10 +1,12 @@
 # 暴风资源 API
 
-基于 Elysia + Bun 的视频资源聚合 API，支持多源切换。
+基于 Elysia + Bun + SQLite 的视频资源聚合 API，支持多源切换和动态源管理。
 
 ## 🚀 功能特性
 
 - ✅ 多 API 源支持（bfzy、ffzy、lzi）
+- ✅ SQLite 数据库管理 API 源
+- ✅ 动态添加/启用/禁用 API 源
 - ✅ 自动切换 API 源
 - ✅ 类型安全（TypeScript）
 - ✅ 统一错误处理
@@ -30,16 +32,11 @@ cp .env.example .env
 编辑 `.env` 文件：
 
 ```env
-# API 源配置
-API_BFZY=https://bfzyapi.com/api.php/provide/vod/
-API_FFZY=https://api.ffzyapi.com/api.php/provide/vod/at/json/
-API_LZI=https://cj.lziapi.com/api.php/provide/vod/at/json/
+# 数据库配置
+DB_PATH=./data/zy-api.db
 
-# 默认 API 源 (bfzy, ffzy, lzi)
-API_DEFAULT_SOURCE=bfzy
-
-# API 超时设置
-API_TIMEOUT=10000
+# API 管理密钥（用于 API 源管理接口鉴权）
+API_ADMIN_KEY=admin123
 
 # 服务器配置
 PORT=3000
@@ -136,46 +133,143 @@ GET /hot?typeId=58&page=1&limit=20&source=bfzy
 - `limit`: 分页数量（可选，默认 20）
 - `source`: API 源（可选，默认 bfzy）
 
+### 6. API 源管理
+
+所有管理接口都需要在请求头中添加鉴权信息：
+
+```
+Authorization: Bearer admin123
+```
+
+#### 6.1 获取所有 API 源
+
+```
+GET /sources
+```
+
+**响应示例：**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "bfzy",
+      "url": "https://bfzyapi.com/api.php/provide/vod/",
+      "is_enabled": 1,
+      "is_default": 1,
+      "timeout": 10000,
+      "remark": "暴风资源",
+      "created_at": 1234567890,
+      "updated_at": 1234567890
+    }
+  ],
+  "total": 1
+}
+```
+
+#### 6.2 获取启用的 API 源
+
+```
+GET /sources/enabled
+```
+
+#### 6.3 获取默认 API 源
+
+```
+GET /sources/default
+```
+
+#### 6.4 根据名称获取 API 源
+
+```
+GET /sources/:name
+```
+
+**参数：**
+- `name`: API 源名称（如 bfzy、ffzy、lzi）
+
+#### 6.5 创建 API 源
+
+```
+POST /sources
+Authorization: Bearer admin123
+```
+
+**请求体：**
+```json
+{
+  "name": "newsource",
+  "url": "https://newsource-api.com/api.php/provide/vod/",
+  "timeout": 10000,
+  "remark": "新资源"
+}
+```
+
+**参数：**
+- `name`: 源名称（必填，1-50 字符，唯一）
+- `url`: API 地址（必填，有效的 URI）
+- `timeout`: 超时时间（可选，1000-60000ms，默认 10000）
+- `remark`: 备注（可选，最多 200 字符）
+
+#### 6.6 更新 API 源
+
+```
+PUT /sources/:id
+Authorization: Bearer admin123
+```
+
+**请求体：**
+```json
+{
+  "name": "newsource",
+  "url": "https://newsource-api.com/api.php/provide/vod/",
+  "is_enabled": 1,
+  "is_default": 0,
+  "timeout": 10000,
+  "remark": "新资源"
+}
+```
+
+**参数：**
+- `name`: 源名称（可选，1-50 字符）
+- `url`: API 地址（可选，有效的 URI）
+- `is_enabled`: 是否启用（可选，0 或 1）
+- `is_default`: 是否为默认源（可选，0 或 1）
+- `timeout`: 超时时间（可选，1000-60000ms）
+- `remark`: 备注（可选，最多 200 字符）
+
+#### 6.7 删除 API 源
+
+```
+DELETE /sources/:id
+Authorization: Bearer admin123
+```
+
 ## ➕ 添加新 API 源
 
-**只需修改 3 个地方：**
-
-### 1. 修改 `src/config/index.ts`
-
-在 `API_SOURCES` 对象中添加新源：
-
-```typescript
-export const API_SOURCES = {
-  bfzy: getEnv('API_BFZY', 'https://bfzyapi.com/api.php/provide/vod/'),
-  ffzy: getEnv('API_FFZY', 'https://api.ffzyapi.com/api.php/provide/vod/at/json/'),
-  lzi: getEnv('API_LZI', 'https://cj.lziapi.com/api.php/provide/vod/at/json/'),
-  
-  // 添加新源
-  newsource: getEnv('API_NEWSOURCE', 'https://newsource-api.com/api.php/provide/vod/'),
-} as const
-```
-
-### 2. 修改 `src/types/index.ts`
-
-在 `ApiSource` 类型中添加新源：
-
-```typescript
-export type ApiSource = 'bfzy' | 'ffzy' | 'lzi' | 'newsource'
-```
-
-### 3. 修改 `.env.example`
-
-添加环境变量示例：
-
-```env
-API_NEWSOURCE=https://newsource-api.com/api.php/provide/vod/
-```
-
-**重启服务即可！**
+现在无需修改代码，直接调用 API 接口即可添加新源：
 
 ```bash
-bun run dev
+# 创建新 API 源
+curl -X POST http://localhost:3000/sources \
+  -H "Authorization: Bearer admin123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "newsource",
+    "url": "https://newsource-api.com/api.php/provide/vod/",
+    "timeout": 10000,
+    "remark": "新资源"
+  }'
+
+# 设置为默认源
+curl -X PUT http://localhost:3000/sources/1 \
+  -H "Authorization: Bearer admin123" \
+  -H "Content-Type: application/json" \
+  -d '{"is_default": 1}'
 ```
+
+**无需重启服务，立即生效！**
 
 ## 📦 部署
 
@@ -196,6 +290,9 @@ scp -r public/ root@your-server:/root/drama/
 
 # 上传 .env 文件
 scp .env root@your-server:/root/drama/
+
+# 上传数据库文件（如果已有数据）
+scp data/zy-api.db* root@your-server:/root/drama/data/
 ```
 
 ### 重启服务
@@ -212,7 +309,9 @@ systemctl restart bfzy-api
 bfzy-api/
 ├── src/
 │   ├── config/          # 配置文件
-│   │   └── index.ts     # API 源、服务器配置
+│   │   └── index.ts     # 服务器配置、数据库源加载
+│   ├── db/              # 数据库
+│   │   └── index.ts     # SQLite 数据库初始化和 CRUD 操作
 │   ├── plugin/          # 插件
 │   │   ├── index.ts     # 插件统一导出
 │   │   ├── openapi.ts   # OpenAPI 文档
@@ -227,7 +326,8 @@ bfzy-api/
 │   │   ├── types.ts     # 分类列表
 │   │   ├── search.ts    # 搜索
 │   │   ├── detail.ts    # 详情
-│   │   └── hot.ts       # 热门
+│   │   ├── hot.ts       # 热门
+│   │   └── sources.ts   # API 源管理
 │   ├── types/           # 类型定义
 │   │   └── index.ts
 │   ├── utils/           # 工具函数
@@ -236,8 +336,13 @@ bfzy-api/
 │   │   ├── errorHandler.ts # 错误处理
 │   │   └── parsePlayUrl.ts # 解析播放地址
 │   └── index.ts         # 入口文件
+├── data/                # 数据库文件目录
+│   ├── zy-api.db        # SQLite 数据库文件
+│   ├── zy-api.db-shm    # 共享内存文件
+│   └── zy-api.db-wal    # 写前日志文件
 ├── public/              # 静态文件
 │   └── favicon.ico
+├── dist/                # 编译输出目录
 ├── .env.example         # 环境变量示例
 ├── .gitignore
 ├── bun.lock
