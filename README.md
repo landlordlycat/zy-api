@@ -69,7 +69,6 @@ bun dist/index.js
 启动服务后访问：
 
 - **本地**: http://localhost:3000/docs
-- **生产**: https://api.bff.cc.cd/docs
 
 ## 🔌 API 接口
 
@@ -80,6 +79,7 @@ GET /list?page=1&limit=20&typeId=58&source=bfzy
 ```
 
 **参数：**
+
 - `page`: 页码（可选，默认 1）
 - `limit`: 分页数量（可选，默认 20）
 - `typeId`: 分类 ID（可选，默认 58）
@@ -92,6 +92,7 @@ GET /types?source=bfzy
 ```
 
 **参数：**
+
 - `source`: API 源（可选，默认 bfzy）
 
 ### 3. 搜索视频
@@ -101,12 +102,14 @@ GET /search?wd=关键词&page=1&limit=20&source=bfzy
 ```
 
 **参数：**
+
 - `wd`: 搜索关键词（必填）
 - `page`: 页码（可选，默认 1）
 - `limit`: 分页数量（可选，默认 20）
 - `source`: API 源（可选，默认 bfzy）
 
 **注意：**
+
 - 部分源（如 ffzy）可能会触发 WAF 验证
 - 遇到验证码时，API 会自动切换到其他可用源
 - 也可以手动切换源：`?source=lzi`
@@ -118,6 +121,7 @@ GET /detail/:id?source=bfzy
 ```
 
 **参数：**
+
 - `id`: 视频 ID（必填）
 - `source`: API 源（可选，默认 bfzy）
 
@@ -128,6 +132,7 @@ GET /hot?typeId=58&page=1&limit=20&source=bfzy
 ```
 
 **参数：**
+
 - `typeId`: 分类 ID（可选，默认 58）
 - `page`: 页码（可选，默认 1）
 - `limit`: 分页数量（可选，默认 20）
@@ -148,6 +153,7 @@ GET /sources
 ```
 
 **响应示例：**
+
 ```json
 {
   "success": true,
@@ -187,6 +193,7 @@ GET /sources/:name
 ```
 
 **参数：**
+
 - `name`: API 源名称（如 bfzy、ffzy、lzi）
 
 #### 6.5 创建 API 源
@@ -197,6 +204,7 @@ Authorization: Bearer admin123
 ```
 
 **请求体：**
+
 ```json
 {
   "name": "newsource",
@@ -207,6 +215,7 @@ Authorization: Bearer admin123
 ```
 
 **参数：**
+
 - `name`: 源名称（必填，1-50 字符，唯一）
 - `url`: API 地址（必填，有效的 URI）
 - `timeout`: 超时时间（可选，1000-60000ms，默认 10000）
@@ -220,6 +229,7 @@ Authorization: Bearer admin123
 ```
 
 **请求体：**
+
 ```json
 {
   "name": "newsource",
@@ -232,6 +242,7 @@ Authorization: Bearer admin123
 ```
 
 **参数：**
+
 - `name`: 源名称（可选，1-50 字符）
 - `url`: API 地址（可选，有效的 URI）
 - `is_enabled`: 是否启用（可选，0 或 1）
