@@ -4,7 +4,7 @@ import type { VideoListResponse } from '../types'
 import { handleApiRequest, createErrorResponse, ErrorCode, ErrorResponse } from '../utils/errorHandler'
 import { API_CONFIG } from '../config'
 import { fetchApi, type ListApiResponse } from '../utils/apiClient'
-import { transformVideoList, transformVideoListWithoutTypeName } from '../utils/dataTransform'
+import { transformVideoList } from '../utils/dataTransform'
 
 export const searchRoutes = new Elysia({ prefix: '/search' }).get(
   '/',

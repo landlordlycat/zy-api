@@ -13,7 +13,7 @@ export interface VideoListResponse {
   page: number
   pageCount: number
   total: number
-  typeName: string
+  typeName?: string
   list: VideoItem[]
 }
 
