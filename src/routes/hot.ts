@@ -15,7 +15,7 @@ export const hotRoutes = new Elysia({ prefix: '/hot' }).get(
         const data = await fetchApi<ListApiResponse>(
           {
             ac: 'list',
-            t: typeId,
+            t: String(typeId),
             h: '24',
             pg: String(page),
           },
@@ -37,7 +37,7 @@ export const hotRoutes = new Elysia({ prefix: '/hot' }).get(
   {
     query: t.Object(
       {
-        typeId: t.Optional(t.Number({ description: '分类 ID' })),
+        typeId: t.Optional(t.String({ description: '分类 ID' })),
         page: t.Optional(t.Number({ default: 1, description: '页码' })),
         limit: t.Optional(t.Number({ default: 20, description: '分页数量' })),
         source: t.Optional(
