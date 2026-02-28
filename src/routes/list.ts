@@ -3,7 +3,7 @@ import { Elysia, t } from 'elysia'
 import { handleApiRequest, ErrorCode } from '../utils/errorHandler'
 import { API_CONFIG } from '../config'
 import { fetchApi, type ListApiResponse } from '../utils/apiClient'
-import { transformVideoListWithoutTypeName } from '../utils/dataTransform'
+import { transformVideoList, transformVideoListWithoutTypeName } from '../utils/dataTransform'
 
 export const listRoutes = new Elysia({ prefix: '/list' }).get(
   '/',
@@ -29,7 +29,7 @@ export const listRoutes = new Elysia({ prefix: '/list' }).get(
           pageCount: data.pagecount,
           total: data.total,
           typeName: data.list[0]?.type_name ?? '',
-          list: transformVideoListWithoutTypeName(data.list, limit),
+          list: transformVideoList(data.list, limit),
         }
       },
       { timeout: API_CONFIG.TIMEOUT },
