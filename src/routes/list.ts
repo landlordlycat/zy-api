@@ -3,7 +3,7 @@ import { Elysia, t } from 'elysia'
 import { handleApiRequest, ErrorCode } from '../utils/errorHandler'
 import { API_CONFIG } from '../config'
 import { fetchApi, type ListApiResponse } from '../utils/apiClient'
-import { transformVideoList, transformVideoListWithoutTypeName } from '../utils/dataTransform'
+import { transformVideoList } from '../utils/dataTransform'
 
 export const listRoutes = new Elysia({ prefix: '/list' }).get(
   '/',
