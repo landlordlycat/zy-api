@@ -10,7 +10,7 @@ export const listRoutes = new Elysia({ prefix: '/list' }).get(
   async ({ query, set }) => {
     const pg = query.page ?? 1
     const limit = Math.min(query.limit ?? API_CONFIG.DEFAULT_PAGE_SIZE, API_CONFIG.MAX_PAGE_SIZE)
-    const type = query.typeId ?? 58
+    const type = query.typeId || ''
     const source = query.source
 
     const result = await handleApiRequest(
@@ -19,7 +19,7 @@ export const listRoutes = new Elysia({ prefix: '/list' }).get(
           {
             ac: 'list',
             pg: String(pg),
-            t: String(type),
+            t: type,
           },
           source,
         )
@@ -52,7 +52,7 @@ export const listRoutes = new Elysia({ prefix: '/list' }).get(
       {
         page: t.Optional(t.Number({ default: 1, description: '页码' })),
         limit: t.Optional(t.Number({ default: 20, description: '分页数量' })),
-        typeId: t.Optional(t.Number({ default: 58, description: '分类 ID' })),
+        typeId: t.Optional(t.Number({ description: '分类 ID' })),
         source: t.Optional(
           t.String({
             description: 'API 源（可选，默认使用数据库中配置的默认源）',
