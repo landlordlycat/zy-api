@@ -28,7 +28,6 @@ export const listRoutes = new Elysia({ prefix: '/list' }).get(
           page: data.page,
           pageCount: data.pagecount,
           total: data.total,
-          typeName: data.list[0]?.type_name ?? '',
           list: transformVideoList(data.list, limit),
         }
       },
