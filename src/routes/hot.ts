@@ -7,7 +7,7 @@ import { transformVideoList } from '../utils/dataTransform'
 export const hotRoutes = new Elysia({ prefix: '/hot' }).get(
   '/',
   async ({ query, set }) => {
-    const { limit = API_CONFIG.DEFAULT_PAGE_SIZE, page = 1, typeId = 58, source } = query
+    const { limit = API_CONFIG.DEFAULT_PAGE_SIZE, page = 1, typeId = '', source } = query
     const actualLimit = Math.min(limit, API_CONFIG.MAX_PAGE_SIZE)
 
     const result = await handleApiRequest(
@@ -15,7 +15,7 @@ export const hotRoutes = new Elysia({ prefix: '/hot' }).get(
         const data = await fetchApi<ListApiResponse>(
           {
             ac: 'list',
-            t: String(typeId),
+            t: typeId,
             h: '24',
             pg: String(page),
           },
@@ -37,7 +37,7 @@ export const hotRoutes = new Elysia({ prefix: '/hot' }).get(
   {
     query: t.Object(
       {
-        typeId: t.Optional(t.Number({ default: 58, description: '分类 ID' })),
+        typeId: t.Optional(t.Number({ description: '分类 ID' })),
         page: t.Optional(t.Number({ default: 1, description: '页码' })),
         limit: t.Optional(t.Number({ default: 20, description: '分页数量' })),
         source: t.Optional(
